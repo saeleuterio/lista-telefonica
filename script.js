@@ -1,242 +1,284 @@
 // Elementos do DOM
-const contactForm = document.getElementById('contact-form');
-const nameInput = document.getElementById('name');
-const phoneInput = document.getElementById('phone');
-const contactsList = document.getElementById('contacts-list');
-const emptyList = document.getElementById('empty-list');
-const searchInput = document.getElementById('search');
-const saveBtn = document.getElementById('save-btn');
-const cancelBtn = document.getElementById('cancel-btn');
-const formTitle = document.getElementById('form-title');
-const deleteModal = document.getElementById('delete-modal');
-const confirmDeleteBtn = document.getElementById('confirm-delete');
-const cancelDeleteBtn = document.getElementById('cancel-delete');
+const nomeInput = document.getElementById('nome');
+const telefoneInput = document.getElementById('telefone');
+const indiceEdicaoInput = document.getElementById('indice-edicao');
+const btnSalvar = document.getElementById('btn-salvar');
+const btnCancelar = document.getElementById('btn-cancelar');
+const arquivoWordInput = document.getElementById('arquivo-word');
+const btnImportar = document.getElementById('btn-importar');
+const pesquisaInput = document.getElementById('pesquisa');
+const corpoTabela = document.getElementById('corpo-tabela');
 
-// Estado da aplicação
-let contacts = JSON.parse(localStorage.getItem('contacts')) || [];
-let currentContactId = null;
-let contactToDelete = null;
+// Array para armazenar os contatos
+let contatos = [];
 
-// Formatador de telefone
-function formatPhoneNumber(phone) {
-    // Remove caracteres não numéricos
-    const cleaned = phone.replace(/\D/g, '');
+// Carregar contatos do localStorage ao iniciar
+document.addEventListener('DOMContentLoaded', () => {
+    carregarContatos();
+    atualizarTabela();
     
-    // Verifica o tamanho para aplicar o formato correto
-    if (cleaned.length === 11) {
-        // Formato para celular: (XX) XXXXX-XXXX
-        return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
-    } else if (cleaned.length === 10) {
-        // Formato para telefone fixo: (XX) XXXX-XXXX
-        return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
+    // Adicionar evento de pesquisa
+    pesquisaInput.addEventListener('input', () => {
+        atualizarTabela();
+    });
+});
+
+// Evento de salvar contato
+btnSalvar.addEventListener('click', () => {
+    salvarContato();
+});
+
+// Evento de cancelar edição
+btnCancelar.addEventListener('click', () => {
+    cancelarEdicao();
+});
+
+// Evento de importar contatos de arquivo Word
+btnImportar.addEventListener('click', () => {
+    importarContatosDoWord();
+});
+
+// Função para carregar contatos do localStorage
+function carregarContatos() {
+    const contatosSalvos = localStorage.getItem('listaContatos');
+    if (contatosSalvos) {
+        contatos = JSON.parse(contatosSalvos);
     }
-    
-    // Retorna o número sem formatação se não se encaixar nos padrões acima
-    return phone;
 }
 
-// Inicializar aplicação
-function init() {
-    renderContacts();
-    setupEventListeners();
+// Função para salvar contatos no localStorage
+function salvarNoStorage() {
+    localStorage.setItem('listaContatos', JSON.stringify(contatos));
 }
 
-// Configurar event listeners
-function setupEventListeners() {
-    // Form de contato
-    contactForm.addEventListener('submit', handleFormSubmit);
-    cancelBtn.addEventListener('click', resetForm);
+// Função para salvar um novo contato ou atualizar um existente
+function salvarContato() {
+    const nome = nomeInput.value.trim();
+    const telefone = telefoneInput.value.trim();
     
-    // Busca
-    searchInput.addEventListener('input', filterContacts);
-    
-    // Modal de exclusão
-    confirmDeleteBtn.addEventListener('click', confirmDelete);
-    cancelDeleteBtn.addEventListener('click', closeDeleteModal);
-}
-
-// Manipular envio do formulário
-function handleFormSubmit(event) {
-    event.preventDefault();
-    
-    const name = nameInput.value.trim();
-    const phone = phoneInput.value.trim();
-    
-    if (!name || !phone) {
+    // Validação dos campos
+    if (!nome || !telefone) {
         alert('Por favor, preencha todos os campos!');
         return;
     }
     
-    // Formatando o telefone
-    const formattedPhone = formatPhoneNumber(phone);
+    const indiceEdicao = indiceEdicaoInput.value;
     
-    if (currentContactId !== null) {
-        // Modo de edição
-        updateContact(currentContactId, name, formattedPhone);
+    // Se estiver no modo de edição
+    if (indiceEdicao !== '') {
+        contatos[indiceEdicao] = { nome, telefone };
     } else {
-        // Modo de adição
-        addContact(name, formattedPhone);
+        // Adicionar novo contato
+        contatos.push({ nome, telefone });
     }
     
-    resetForm();
-    saveContacts();
-    renderContacts();
-}
-
-// Adicionar novo contato
-function addContact(name, phone) {
-    const newContact = {
-        id: Date.now().toString(),
-        name,
-        phone
-    };
+    // Ordenar contatos por nome
+    ordenarContatos();
     
-    contacts.push(newContact);
-}
-
-// Atualizar contato existente
-function updateContact(id, name, phone) {
-    const index = contacts.findIndex(contact => contact.id === id);
-    if (index !== -1) {
-        contacts[index] = {
-            ...contacts[index],
-            name,
-            phone
-        };
-    }
-}
-
-// Salvar contatos no localStorage
-function saveContacts() {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-}
-
-// Renderizar lista de contatos
-function renderContacts(filteredContacts = null) {
-    const contactsToRender = filteredContacts || contacts;
+    // Salvar no localStorage
+    salvarNoStorage();
     
-    // Limpar lista atual
-    while (contactsList.firstChild !== emptyList) {
-        contactsList.removeChild(contactsList.firstChild);
-    }
+    // Limpar formulário
+    limparFormulario();
     
-    // Mostrar mensagem de lista vazia se não houver contatos
-    if (contactsToRender.length === 0) {
-        emptyList.style.display = 'flex';
+    // Atualizar tabela
+    atualizarTabela();
+}
+
+// Função para ordenar contatos por nome
+function ordenarContatos() {
+    contatos.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+}
+
+// Função para limpar o formulário
+function limparFormulario() {
+    nomeInput.value = '';
+    telefoneInput.value = '';
+    indiceEdicaoInput.value = '';
+    btnSalvar.textContent = 'Salvar';
+    btnCancelar.style.display = 'none';
+}
+
+// Função para atualizar a tabela de contatos
+function atualizarTabela() {
+    corpoTabela.innerHTML = '';
+    
+    const termoPesquisa = pesquisaInput.value.toLowerCase();
+    
+    // Filtrar contatos conforme pesquisa
+    const contatosFiltrados = contatos.filter(contato => 
+        contato.nome.toLowerCase().includes(termoPesquisa) || 
+        contato.telefone.includes(termoPesquisa)
+    );
+    
+    // Mostrar mensagem se não houver contatos
+    if (contatosFiltrados.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="3" style="text-align: center;">Nenhum contato encontrado</td>`;
+        corpoTabela.appendChild(tr);
         return;
     }
     
-    // Esconder mensagem de lista vazia
-    emptyList.style.display = 'none';
-    
-    // Ordenar contatos por nome
-    const sortedContacts = [...contactsToRender].sort((a, b) => 
-        a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' })
-    );
-    
-    // Adicionar cada contato à lista
-    sortedContacts.forEach(contact => {
-        const contactElement = createContactElement(contact);
-        contactsList.insertBefore(contactElement, emptyList);
+    // Adicionar cada contato na tabela
+    contatosFiltrados.forEach((contato, indice) => {
+        const indiceOriginal = contatos.indexOf(contato);
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${contato.nome}</td>
+            <td>${contato.telefone}</td>
+            <td class="acoes">
+                <button class="btn-editar" onclick="editarContato(${indiceOriginal})">Editar</button>
+                <button class="btn-apagar" onclick="apagarContato(${indiceOriginal})">Apagar</button>
+            </td>
+        `;
+        
+        corpoTabela.appendChild(tr);
     });
 }
 
-// Criar elemento de contato
-function createContactElement(contact) {
-    const template = document.getElementById('contact-template');
-    const contactNode = document.importNode(template.content, true);
+// Função para editar um contato
+function editarContato(indice) {
+    const contato = contatos[indice];
     
-    const contactItem = contactNode.querySelector('.contact-item');
-    const nameElement = contactNode.querySelector('.contact-name');
-    const phoneElement = contactNode.querySelector('.contact-phone');
-    const editBtn = contactNode.querySelector('.edit-btn');
-    const deleteBtn = contactNode.querySelector('.delete-btn');
+    nomeInput.value = contato.nome;
+    telefoneInput.value = contato.telefone;
+    indiceEdicaoInput.value = indice;
     
-    // Definir ID do contato
-    contactItem.dataset.id = contact.id;
+    btnSalvar.textContent = 'Atualizar';
+    btnCancelar.style.display = 'inline-block';
     
-    // Preencher informações
-    nameElement.textContent = contact.name;
-    phoneElement.textContent = contact.phone;
-    
-    // Configurar botões
-    editBtn.addEventListener('click', () => editContact(contact.id));
-    deleteBtn.addEventListener('click', () => openDeleteModal(contact.id));
-    
-    return contactNode;
+    nomeInput.focus();
 }
 
-// Filtrar contatos
-function filterContacts() {
-    const searchTerm = searchInput.value.toLowerCase().trim();
+// Função para cancelar a edição
+function cancelarEdicao() {
+    limparFormulario();
+}
+
+// Função para apagar um contato
+function apagarContato(indice) {
+    if (confirm('Tem certeza que deseja excluir este contato?')) {
+        contatos.splice(indice, 1);
+        salvarNoStorage();
+        atualizarTabela();
+    }
+}
+
+// Função para importar contatos de um arquivo Word (.doc/.docx)
+function importarContatosDoWord() {
+    const arquivoInput = document.getElementById('arquivo-word');
+    const arquivo = arquivoInput.files[0];
     
-    if (!searchTerm) {
-        renderContacts();
+    if (!arquivo) {
+        alert('Por favor, selecione um arquivo Word (.doc ou .docx)');
         return;
     }
     
-    const filtered = contacts.filter(contact => 
-        contact.name.toLowerCase().includes(searchTerm) || 
-        contact.phone.replace(/\D/g, '').includes(searchTerm)
-    );
+    // Verificar extensão do arquivo
+    const extensao = arquivo.name.split('.').pop().toLowerCase();
+    if (extensao !== 'doc' && extensao !== 'docx') {
+        alert('Por favor, selecione um arquivo Word (.doc ou .docx)');
+        return;
+    }
     
-    renderContacts(filtered);
+    // Mostrar feedback ao usuário
+    btnImportar.textContent = 'Importando...';
+    btnImportar.disabled = true;
+    
+    // Ler o arquivo
+    const reader = new FileReader();
+    reader.onload = function(loadEvent) {
+        const arrayBuffer = loadEvent.target.result;
+        
+        // Processar o arquivo usando mammoth.js
+        mammoth.extractRawText({ arrayBuffer: arrayBuffer })
+            .then(function(result) {
+                const texto = result.value;
+                processarTextoParaContatos(texto);
+                btnImportar.textContent = 'Importar Contatos do Word';
+                btnImportar.disabled = false;
+                arquivoInput.value = '';
+            })
+            .catch(function(error) {
+                console.error(error);
+                alert('Erro ao processar o arquivo: ' + error.message);
+                btnImportar.textContent = 'Importar Contatos do Word';
+                btnImportar.disabled = false;
+            });
+    };
+    
+    reader.readAsArrayBuffer(arquivo);
 }
 
-// Editar contato
-function editContact(id) {
-    const contact = contacts.find(c => c.id === id);
-    if (!contact) return;
+// Função para processar o texto extraído e encontrar contatos
+function processarTextoParaContatos(texto) {
+    // Dividir o texto em linhas
+    const linhas = texto.split(/\r?\n/).filter(linha => linha.trim() !== '');
     
-    // Preencher formulário com dados do contato
-    nameInput.value = contact.name;
-    phoneInput.value = contact.phone;
+    // Padrões para reconhecer nomes e números de telefone
+    const contatosEncontrados = [];
+    const contatosAdicionados = 0;
     
-    // Mudar estado do formulário
-    currentContactId = id;
-    formTitle.textContent = 'Editar Contato';
-    saveBtn.innerHTML = '<i class="fas fa-save"></i> Atualizar';
-    cancelBtn.style.display = 'flex';
+    // Método 1: Tentar encontrar padrões de nome: telefone
+    const padraoNomeTelefone = /^([^:]+):\s*(\(\d+\)\s*\d+[\-\s]*\d+|[\d\-\+\(\)\s]{7,})$/;
     
-    // Rolar para o formulário
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// Abrir modal de exclusão
-function openDeleteModal(id) {
-    contactToDelete = id;
-    deleteModal.style.display = 'flex';
-}
-
-// Fechar modal de exclusão
-function closeDeleteModal() {
-    deleteModal.style.display = 'none';
-    contactToDelete = null;
-}
-
-// Confirmar exclusão de contato
-function confirmDelete() {
-    if (contactToDelete) {
-        deleteContact(contactToDelete);
-        closeDeleteModal();
+    // Método 2: Reconhecer números de telefone independentes
+    const padraoTelefone = /(\(\d{2,3}\)\s*\d{4,5}[\-\s]*\d{4}|\d{8,11}|\d{4,5}[\-\s]\d{4})/g;
+    
+    // Primeiro, tenta encontrar padrões bem formatados (nome: telefone)
+    for (let linha of linhas) {
+        const match = linha.match(padraoNomeTelefone);
+        if (match) {
+            const nome = match[1].trim();
+            const telefone = match[2].trim();
+            contatosEncontrados.push({ nome, telefone });
+        } else {
+            // Se a linha contém um telefone, mas não corresponde ao padrão nome: telefone
+            const telefones = linha.match(padraoTelefone);
+            if (telefones) {
+                // Tentamos encontrar um possível nome (o texto antes do telefone)
+                const telefone = telefones[0];
+                const possivelNome = linha.split(telefone)[0].trim();
+                
+                // Se parece um nome válido (não vazio e não apenas números/símbolos)
+                const nome = possivelNome && !/^[\d\W]+$/.test(possivelNome) 
+                    ? possivelNome 
+                    : `Contato ${contatosEncontrados.length + 1}`;
+                
+                contatosEncontrados.push({ nome, telefone });
+            }
+        }
+    }
+    
+    // Se não encontrou contatos com os métodos anteriores, tenta um método mais agressivo
+    if (contatosEncontrados.length === 0) {
+        let contador = 1;
+        texto.match(padraoTelefone)?.forEach(telefone => {
+            contatosEncontrados.push({
+                nome: `Contato ${contador}`,
+                telefone: telefone
+            });
+            contador++;
+        });
+    }
+    
+    // Adiciona os contatos encontrados à lista
+    if (contatosEncontrados.length > 0) {
+        // Verificar duplicatas antes de adicionar
+        const novasEntradas = contatosEncontrados.filter(novoContato => {
+            return !contatos.some(contatoExistente => 
+                contatoExistente.telefone === novoContato.telefone
+            );
+        });
+        
+        contatos = [...contatos, ...novasEntradas];
+        ordenarContatos();
+        salvarNoStorage();
+        atualizarTabela();
+        
+        alert(`Importação concluída: ${novasEntradas.length} contatos importados. ${contatosEncontrados.length - novasEntradas.length} contatos estavam duplicados e foram ignorados.`);
+    } else {
+        alert('Nenhum contato foi encontrado no arquivo.');
     }
 }
-
-// Excluir contato
-function deleteContact(id) {
-    contacts = contacts.filter(contact => contact.id !== id);
-    saveContacts();
-    renderContacts();
-}
-
-// Resetar formulário
-function resetForm() {
-    contactForm.reset();
-    currentContactId = null;
-    formTitle.textContent = 'Adicionar Novo Contato';
-    saveBtn.innerHTML = '<i class="fas fa-save"></i> Salvar';
-    cancelBtn.style.display = 'none';
-}
-
-// Inicializar aplicação quando o DOM estiver carregado
-document.addEventListener('DOMContentLoaded', init);

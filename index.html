@@ -3,85 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Contatos</title>
+    <title>Lista Telefônica</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Minha Agenda de Contatos</h1>
-            <img src="https://img.icons8.com/pastel-glyph/200/address-book--v2.png" alt="Ícone de agenda" class="header-image"/>
-        </header>
-
+        <h1>Lista Telefônica</h1>
+        
         <div class="form-container">
-            <h2 id="form-title">Adicionar Novo Contato</h2>
-            <form id="contact-form">
-                <div class="form-group">
-                    <label for="name">Nome:</label>
-                    <input type="text" id="name" placeholder="Digite o nome completo" required>
-                </div>
-                <div class="form-group">
-                    <label for="phone">Telefone:</label>
-                    <input type="tel" id="phone" placeholder="Digite o telefone" required>
-                </div>
-                <div class="form-buttons">
-                    <button type="submit" id="save-btn">
-                        <i class="fas fa-save"></i> Salvar
-                    </button>
-                    <button type="button" id="cancel-btn" style="display: none;">
-                        <i class="fas fa-times"></i> Cancelar
-                    </button>
-                </div>
-            </form>
+            <input type="text" id="nome" placeholder="Nome" required>
+            <input type="tel" id="telefone" placeholder="Telefone" required>
+            <input type="hidden" id="indice-edicao">
+            <button id="btn-salvar">Salvar</button>
+            <button id="btn-cancelar" style="display: none;">Cancelar</button>
         </div>
-
-        <div class="contacts-container">
-            <h2>Meus Contatos</h2>
-            <div class="search-container">
-                <input type="text" id="search" placeholder="Buscar contatos...">
-                <i class="fas fa-search search-icon"></i>
-            </div>
-            <div class="contacts-list" id="contacts-list">
-                <!-- Lista de contatos será inserida pelo JavaScript -->
-                <div class="empty-list" id="empty-list">
-                    <img src="https://img.icons8.com/pastel-glyph/150/empty-box.png" alt="Lista vazia" class="empty-list-image"/>
-                    <p>Sua lista de contatos está vazia.</p>
-                </div>
-            </div>
+        
+        <div class="import-container">
+            <input type="file" id="arquivo-word" accept=".doc,.docx">
+            <button id="btn-importar">Importar Contatos do Word</button>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" id="pesquisa" placeholder="Pesquisar contato...">
+        </div>
+        
+        <div class="contatos-container">
+            <table id="tabela-contatos">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Telefone</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="corpo-tabela">
+                    <!-- Contatos serão adicionados aqui pelo JavaScript -->
+                </tbody>
+            </table>
         </div>
     </div>
-
-    <!-- Template para os contatos -->
-    <template id="contact-template">
-        <div class="contact-item">
-            <div class="contact-info">
-                <h3 class="contact-name"></h3>
-                <p class="contact-phone"></p>
-            </div>
-            <div class="contact-actions">
-                <button class="edit-btn" title="Editar contato">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="delete-btn" title="Apagar contato">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-        </div>
-    </template>
-
-    <!-- Modal de confirmação para exclusão -->
-    <div class="modal" id="delete-modal">
-        <div class="modal-content">
-            <h3>Confirmar exclusão</h3>
-            <p>Tem certeza que deseja excluir este contato?</p>
-            <div class="modal-buttons">
-                <button id="confirm-delete">Sim, excluir</button>
-                <button id="cancel-delete">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.0/mammoth.browser.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
