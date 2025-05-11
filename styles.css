@@ -275,7 +275,7 @@ tr:hover {
 }
 
 .btn-editar {
-    padding: 8px 16px;
+    padding: 4px 8px;
     background-color: #4dabf7;
     color: white;
     border-radius: var(--border-radius);
@@ -286,7 +286,7 @@ tr:hover {
 }
 
 .btn-apagar {
-    padding: 8px 16px;
+    padding: 4px 8px;
     background-color: var(--danger-color);
     color: white;
     border-radius: var(--border-radius);
