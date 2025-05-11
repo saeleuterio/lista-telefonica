@@ -5,6 +5,7 @@ const indiceEdicaoInput = document.getElementById('indice-edicao');
 const btnSalvar = document.getElementById('btn-salvar');
 const btnCancelar = document.getElementById('btn-cancelar');
 const arquivoWordInput = document.getElementById('arquivo-word');
+const arquivoNomeSpan = document.getElementById('arquivo-nome');
 const btnImportar = document.getElementById('btn-importar');
 const pesquisaInput = document.getElementById('pesquisa');
 const corpoTabela = document.getElementById('corpo-tabela');
@@ -20,6 +21,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Adicionar evento de pesquisa
     pesquisaInput.addEventListener('input', () => {
         atualizarTabela();
+    });
+    
+    // Atualizar nome do arquivo quando selecionado
+    arquivoWordInput.addEventListener('change', () => {
+        if (arquivoWordInput.files.length > 0) {
+            arquivoNomeSpan.textContent = arquivoWordInput.files[0].name;
+        } else {
+            arquivoNomeSpan.textContent = 'Nenhum arquivo selecionado';
+        }
     });
 });
 
@@ -114,7 +124,13 @@ function atualizarTabela() {
     // Mostrar mensagem se não houver contatos
     if (contatosFiltrados.length === 0) {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td colspan="3" style="text-align: center;">Nenhum contato encontrado</td>`;
+        tr.innerHTML = `
+            <td colspan="3" class="empty-state">
+                <i class="fas fa-address-book"></i>
+                <p>Nenhum contato encontrado</p>
+                ${termoPesquisa ? '<p>Tente usar outro termo de busca</p>' : '<p>Adicione seu primeiro contato usando o formulário acima</p>'}
+            </td>
+        `;
         corpoTabela.appendChild(tr);
         return;
     }
@@ -125,11 +141,11 @@ function atualizarTabela() {
         
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>${contato.nome}</td>
-            <td>${contato.telefone}</td>
+            <td><i class="fas fa-user-circle" style="margin-right: 8px; color: #5b6af0;"></i>${contato.nome}</td>
+            <td><i class="fas fa-phone" style="margin-right: 8px; color: #00c170;"></i>${contato.telefone}</td>
             <td class="acoes">
-                <button class="btn-editar" onclick="editarContato(${indiceOriginal})">Editar</button>
-                <button class="btn-apagar" onclick="apagarContato(${indiceOriginal})">Apagar</button>
+                <button class="btn-editar" onclick="editarContato(${indiceOriginal})"><i class="fas fa-edit"></i> Editar</button>
+                <button class="btn-apagar" onclick="apagarContato(${indiceOriginal})"><i class="fas fa-trash-alt"></i> Apagar</button>
             </td>
         `;
         
@@ -183,7 +199,7 @@ function importarContatosDoWord() {
     }
     
     // Mostrar feedback ao usuário
-    btnImportar.textContent = 'Importando...';
+    btnImportar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importando...';
     btnImportar.disabled = true;
     
     // Ler o arquivo
@@ -196,14 +212,15 @@ function importarContatosDoWord() {
             .then(function(result) {
                 const texto = result.value;
                 processarTextoParaContatos(texto);
-                btnImportar.textContent = 'Importar Contatos do Word';
+                btnImportar.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Importar Contatos';
                 btnImportar.disabled = false;
                 arquivoInput.value = '';
+                arquivoNomeSpan.textContent = 'Nenhum arquivo selecionado';
             })
             .catch(function(error) {
                 console.error(error);
                 alert('Erro ao processar o arquivo: ' + error.message);
-                btnImportar.textContent = 'Importar Contatos do Word';
+                btnImportar.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Importar Contatos';
                 btnImportar.disabled = false;
             });
     };

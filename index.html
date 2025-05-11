@@ -4,44 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista Telefônica</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Lista Telefônica</h1>
-        
-        <div class="form-container">
-            <input type="text" id="nome" placeholder="Nome" required>
-            <input type="tel" id="telefone" placeholder="Telefone" required>
-            <input type="hidden" id="indice-edicao">
-            <button id="btn-salvar">Salvar</button>
-            <button id="btn-cancelar" style="display: none;">Cancelar</button>
+        <div class="app-header">
+            <i class="fas fa-address-book header-icon"></i>
+            <h1>Meus Contatos</h1>
         </div>
         
-        <div class="import-container">
-            <input type="file" id="arquivo-word" accept=".doc,.docx">
-            <button id="btn-importar">Importar Contatos do Word</button>
+        <div class="card form-card">
+            <div class="card-header">
+                <h2><i class="fas fa-user-plus"></i> Adicionar Contato</h2>
+            </div>
+            <div class="form-container">
+                <div class="input-group">
+                    <i class="fas fa-user input-icon"></i>
+                    <input type="text" id="nome" placeholder="Nome" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-phone input-icon"></i>
+                    <input type="tel" id="telefone" placeholder="Telefone" required>
+                </div>
+                <input type="hidden" id="indice-edicao">
+                <div class="button-group">
+                    <button id="btn-salvar" class="btn-primary"><i class="fas fa-save"></i> Salvar</button>
+                    <button id="btn-cancelar" class="btn-secondary" style="display: none;"><i class="fas fa-times"></i> Cancelar</button>
+                </div>
+            </div>
         </div>
         
-        <div class="search-container">
-            <input type="text" id="pesquisa" placeholder="Pesquisar contato...">
+        <div class="card import-card">
+            <div class="card-header">
+                <h2><i class="fas fa-file-import"></i> Importar Contatos</h2>
+            </div>
+            <div class="import-container">
+                <div class="input-group file-input-group">
+                    <i class="fas fa-file-word input-icon"></i>
+                    <label for="arquivo-word" class="file-label">Escolher Arquivo</label>
+                    <input type="file" id="arquivo-word" accept=".doc,.docx">
+                    <span id="arquivo-nome">Nenhum arquivo selecionado</span>
+                </div>
+                <button id="btn-importar" class="btn-accent"><i class="fas fa-cloud-upload-alt"></i> Importar Contatos</button>
+            </div>
         </div>
         
-        <div class="contatos-container">
-            <table id="tabela-contatos">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Telefone</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="corpo-tabela">
-                    <!-- Contatos serão adicionados aqui pelo JavaScript -->
-                </tbody>
-            </table>
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-address-card"></i> Meus Contatos</h2>
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="pesquisa" placeholder="Buscar contato...">
+                </div>
+            </div>
+            <div class="contatos-container">
+                <table id="tabela-contatos">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Telefone</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpo-tabela">
+                        <!-- Contatos serão adicionados aqui pelo JavaScript -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+    
+    <footer>
+        <p>© 2025 | Desenvolvido por Saulo Eleuterio</p>
+    </footer>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.0/mammoth.browser.min.js"></script>
     <script src="script.js"></script>
